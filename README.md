@@ -11,15 +11,12 @@
 
 ### 如何使用  
 
-![如何使用](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_1.gif)  
+![如何使用](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-1.gif)  
 
 ### 获取比赛直播场次  
 
-![获取比赛直播场次](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_2.gif)  
+![获取比赛直播场次](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-2.gif)  
 
 ### 选取比赛开始直播  
 
-![选取比赛开始直播](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_3.png)  
-
-直播会自动滚动的，获取到新的直播内容就会追加显示
-
+![选取比赛开始直播](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-3.gif)  
