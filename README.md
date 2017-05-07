@@ -9,14 +9,19 @@
 时不我待，撸起袖子就开始干活了  
 在 debug 了又 debug 后，终于可以用来看直播了  
 
-### 如何使用  
+### 使用指南  
+```hupu -h``` 能够查看如何使用，明细各项参数功能  
 
-![如何使用](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-1.gif)  
+![使用指南](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-1.gif)  
 
 ### 获取比赛直播场次  
+```hupu -l``` 查询当天比赛的直播的场次，结果返回比赛场次  
 
 ![获取比赛直播场次](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-2.gif)  
 
 ### 选取比赛开始直播  
+```hupu -w 0``` 根据 ```hupu -l``` 返回的场次序号选择具体的比赛场次，比如这里的 0  
 
 ![选取比赛开始直播](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-3.gif)  
+
+对齐看起来很舒服有没有，强迫症的福音有没有！！！ 
