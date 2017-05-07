@@ -11,7 +11,7 @@
 
 ### 如何使用  
 
-![如何使用](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_1.png)  
+![如何使用](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_1.gif)  
 
 ### 获取比赛直播场次  
 
