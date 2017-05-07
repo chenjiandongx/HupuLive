@@ -15,7 +15,7 @@
 
 ### 获取比赛直播场次  
 
-![获取比赛直播场次](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_2.png)  
+![获取比赛直播场次](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu_2.gif)  
 
 ### 选取比赛开始直播  
 
