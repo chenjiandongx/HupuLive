@@ -17,7 +17,7 @@
 ### 使用指南  
 ```hupu -h``` 能够查看如何使用，明细各项参数功能  
 
-![使用指南](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-1.gif)  
+![使用指南](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-0.gif)  
 
 ### 获取比赛直播场次  
 ```hupu -l``` 查询当天比赛的直播的场次，结果返回比赛场次，包括对阵双方以及场次的序号  
@@ -29,5 +29,12 @@
 
 ![选取比赛开始直播](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-3.gif)  
 
-对齐看起来很舒服有没有，强迫症的福音有没有！！！  
+对齐看起来很舒服有没有，强迫症的福音有没有！！！
+
+### 获取比赛统计数据  
+```hupu -d``` 同样也是根据获取的场次序号来选择具体比赛  
+
+![获取比赛统计数据](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-4.gif)  
+
+数据也是对齐的看起来也是很爽的有没有！！！
 如果不想看了可以按 Ctrl-C 来中断直播，或者直接关闭终端就行了
