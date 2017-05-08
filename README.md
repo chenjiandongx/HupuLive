@@ -9,6 +9,11 @@
 时不我待，撸起袖子加油干  
 在 debug 了又 debug 后，终于可以用来看直播了  
 
+### 如何安装
+1. ``` git clone https://github.com/chenjiandongx/HupuLive.git ```
+2. ``` cd HupuLive ```  
+3. ``` python setup.py install ```  
+
 ### 使用指南  
 ```hupu -h``` 能够查看如何使用，明细各项参数功能  
 
