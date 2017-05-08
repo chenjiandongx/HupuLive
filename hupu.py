@@ -27,7 +27,6 @@ from docopt import docopt
 import requests
 from bs4 import BeautifulSoup
 
-
 class Hupu():
 
     __headers__ = {'X-Requested-With': 'XMLHttpRequest',
@@ -76,37 +75,37 @@ class Hupu():
 
     def live_game(self, url):
         """ 循环文字直播比赛 """
-        currid = 2
+        currid = 2.0
         title = requests.get(url, headers=self._headers).text
         info = BeautifulSoup(title, 'lxml').find('tr', class_="title bg_a").find_all('td')
-        itime, iscore = info[0].text, info[3].text
-        print("\n\t" + itime, '\t', iscore)        # 获取比赛标题信息
+        print("\n\t{} \t {}\n".format(info[0].text, info[3].text))        # 获取比赛标题信息
 
         try:
             while True:
-                response = requests.get(url, headers=self._headers, timeout=5).text
-                table = BeautifulSoup(response, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow").find('table')
-                # 比赛结束时序列是升序的，比赛中序列是降序的，匹配比赛是否结束然后选择排序方法
-                trlst = table.find_all('tr') if re.findall("已结束", response) else reversed(table.find_all('tr'))
+                r = requests.get(url, headers=self._headers, timeout=5).text
+                table = BeautifulSoup(r, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow")
 
+                # 比赛结束时序列是升序的，比赛中序列是降序的，匹配比赛是否结束然后选择排序方法
+                if re.findall(r'team_num">(\S+)</div>', r):
+                    trlst = reversed(table.find('table').find_all('tr'))
+                else:
+                    trlst = table.find('table').find_all('tr')
                 for tr in trlst:
-                    id = int(tr['id'])
-                    if currid <= id:
+                    if currid <= float(tr['id']):
                         currid += 1
-                        td = [t.text for t in table.find('tr', id=id).find_all('td')]
+                        td = [t.text for t in table.find('tr', id=tr['id']).find_all('td')]
 
                         if len(td) == 4:
                             gtime, gteam, gevent, gscore = td
-                            if len(gteam) < 5:      # 补全空格，使显示格式对齐
-                                spacecnt = int(5 - len(gteam))
-                                gteam += spacecnt * " "
-                            print("\t"+ gtime, '\t', gscore, '\t', gteam[1:] + '\t '+ gevent, "\n")
-                        elif len(td) == 1:      # 显示如比赛暂停，第一节结束等非比分信息
-                            gmsg = td[0]
-                            print("", gmsg, "\n")
-                            if gmsg == "比赛结束":
+                            if len(gteam) < 5:      # 补全空格，使显示格式对齐，强迫症
+                                gteam += int(5 - len(gteam)) * 2 * " "
+                            print("\t{} \t {} \t {}\t{}\n".format(gtime, gscore, gteam[1:], gevent))
+                        elif len(td) == 1:          # 显示如比赛暂停，第一节结束等非比分信息
+                            print("", td[0], "\n")
+                            if td[0] == "比赛结束":
                                 return
-                time.sleep(1)       # 每隔一秒发起一次请求
+                time.sleep(1)                       # 每隔一秒发起一次请求
+
         except requests.exceptions.ConnectTimeout:
             print(">>  网络连接失败，无法获得直播数据")
         except KeyboardInterrupt:
@@ -114,7 +113,8 @@ class Hupu():
 
 
 def cli():
-    args = docopt(__doc__, version='Hupu Live 1.0')
+    """ 入口方法 """
+    args = docopt(__doc__, version='Hupu Live 1.1')
     Hupu(**args).get_command()
 
 
