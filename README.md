@@ -36,5 +36,5 @@
 
 ![获取比赛统计数据](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-4.gif)  
 
-数据也是对齐的看起来也是很爽的有没有！！！
+数据也是对齐的看起来也是很爽的有没有！！！  
 如果不想看了可以按 Ctrl-C 来中断直播，或者直接关闭终端就行了
