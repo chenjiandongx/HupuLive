@@ -5,6 +5,7 @@
 Usage:
     hupu -l
     hupu -w <gameNumber>
+    hupu -d <gameNumber>
     hupu -h | --help
     hupu -v | --version
 
@@ -19,6 +20,7 @@ Options:
     -v --version     Show version.
     -l               Show game live list.
     -w               Select a game live to watch.
+    -d               Show game statistical data (like points, rebounds, assists)
 
 """
 import time
@@ -37,6 +39,7 @@ class Hupu():
         self._args = kwargs
         self._namelst = []
         self._hreflst = []
+        self._datalst = []
         self._headers = self.__headers__
         self.get_gamelist()
 
@@ -56,6 +59,12 @@ class Hupu():
             except Exception:
                 print(">>  输入比赛场次有误")
 
+        if self._args.get('-d'):
+            try:
+                self.show_data(self._datalst[int(self._args.get('<gameNumber>'))])
+            except Exception:
+                print(">>  输入比赛场次有误")
+
     def get_gamelist(self):
         """ 获取直播场次列表 """
         url = "https://nba.hupu.com/games/playbyplay"
@@ -66,19 +75,55 @@ class Hupu():
             for href in game_href:
                 h = href['href']
                 if "playbyplay" in h:
-
                     self._hreflst.append(h)
                     game = BeautifulSoup(requests.get(h).text, 'lxml').find('p', class_="bread-crumbs").text
                     self._namelst.append(str(game).strip().split()[2][:-4])     # 获取对阵双方
+                if "boxscore" in h:
+                    self._datalst.append(h)
+
         except requests.exceptions.ConnectTimeout:
             print(">>  获取比赛场次失败,请检查您的网络连接情况")
+
+    def show_data_title(self, url):
+        """" 显示比赛统计数据的各项标题，如得分，篮板 """
+        r = requests.get(url, headers=self.__headers__).text
+        title = BeautifulSoup(r, 'lxml').find('tr', class_="title bg_a").find_all('td')
+        print()
+        for i, v in enumerate([t.text for t in title]):
+            if i == 0:
+                print("  位置", end="")
+            elif i <= 15:
+                print(v, end="\t")
+        print("球员\n")
+
+
+    def show_data(self, url):
+        """ 显示比赛统计数据 """
+        self.show_data_title(url)
+        r = requests.get(url, headers=self.__headers__).text
+        players = BeautifulSoup(r, 'lxml').find_all('tr', style="background-color: rgb(255, 255, 255);")
+        for index, player in enumerate(players):
+            if index == 15:
+                print("-" * 135)
+                self.show_data_title(url)
+            tdlst = [td.text for td in player.find_all('td')]
+            for i, v in enumerate(tdlst):
+                if i > 0:
+                    if i == 1:
+                        print(" ", v.replace("\n", ""), end="\t")
+                    elif i == 13:
+                        print(v.replace("\n", ""), end="\t\t")
+                    else:
+                        print(v.replace("\n", ""), end="\t")
+            print(tdlst[0], "\n")
+
 
     def live_game(self, url):
         """ 循环文字直播比赛 """
         currid = 2.0
-        title = requests.get(url, headers=self._headers).text
-        info = BeautifulSoup(title, 'lxml').find('tr', class_="title bg_a").find_all('td')
-        print("\n\t{} \t {}\n".format(info[0].text, info[3].text))        # 获取比赛标题信息
+        r = requests.get(url, headers=self._headers).text
+        title = BeautifulSoup(r, 'lxml').find('tr', class_="title bg_a").find_all('td')
+        print("\n\t{} \t {}\n".format(title[0].text, title[3].text))        # 获取比赛标题信息
 
         try:
             while True:
@@ -105,7 +150,6 @@ class Hupu():
                             if td[0] == "比赛结束":
                                 return
                 time.sleep(1)                       # 每隔一秒发起一次请求
-
         except requests.exceptions.ConnectTimeout:
             print(">>  网络连接失败，无法获得直播数据")
         except KeyboardInterrupt:
@@ -114,9 +158,8 @@ class Hupu():
 
 def cli():
     """ 入口方法 """
-    args = docopt(__doc__, version='Hupu Live 1.1')
+    args = docopt(__doc__, version='Hupu Live 1.2')
     Hupu(**args).get_command()
-
 
 if __name__ == '__main__':
     cli()
