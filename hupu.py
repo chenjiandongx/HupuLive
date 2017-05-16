@@ -117,38 +117,58 @@ class Hupu():
                         print(v.replace("\n", ""), end="\t")
             print(tdlst[0], "\n")
 
+    def live_order(self, trlst, currid_cnt, table):
+        """ 调整比赛直播顺序 """
+        for tr in trlst:
+            if currid_cnt <= len(trlst):
+                currid_cnt += 1
+                td = [t.text for t in table.find('tr', id=tr['id']).find_all('td')]
+                if len(td) == 4:
+                    gtime, gteam, gevent, gscore = td
+                    if len(gteam) < 5:  # 补全空格，使显示格式对齐，强迫症
+                        gteam += int(5 - len(gteam)) * 2 * " "
+                    print("\t{} \t {} \t {}\t{}\n".format(gtime, gscore, gteam[1:], gevent))
+                elif len(td) == 1:  # 显示如比赛暂停，第一节结束等非比分信息
+                    print("", td[0], "\n")
+                    if td[0] == "比赛结束":
+                        return
+        return currid_cnt
 
     def live_game(self, url):
         """ 循环文字直播比赛 """
-        currid = 2.0
-        r = requests.get(url, headers=self._headers).text
+        currid_cnt = 1
+        r = requests.get(url, headers=self._headers, timeout=10).text
         title = BeautifulSoup(r, 'lxml').find('tr', class_="title bg_a").find_all('td')
         print("\n\t{} \t {}\n".format(title[0].text, title[3].text))        # 获取比赛标题信息
+        table = BeautifulSoup(r, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow")
 
+        # 比赛结束时序列是升序的，比赛中序列是降序的，匹配比赛是否结束然后选择排序方法
+        # 由于直播的 tr 的 id 不按套路出牌时大时小，所以不能根据 id 大小来判断直播顺序了，要按 id 数量
+        # 所以分两部分进行，第一部先一次性打印出已经存在的直播内容，然后再循环直播接下来的内容
+        if re.findall(r'team_num">(\S+)</div>', r):
+            trlst = [tr for tr in reversed(table.find('table').find_all('tr'))]
+            currid_cnt = self.live_order(trlst, 1, table)
+        else:
+            trlst = table.find('table').find_all('tr')
+            self.live_order(trlst, currid_cnt, table)
+            return
         try:
             while True:
                 r = requests.get(url, headers=self._headers, timeout=5).text
                 table = BeautifulSoup(r, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow")
-
-                # 比赛结束时序列是升序的，比赛中序列是降序的，匹配比赛是否结束然后选择排序方法
-                if re.findall(r'team_num">(\S+)</div>', r):
-                    trlst = reversed(table.find('table').find_all('tr'))
-                else:
-                    trlst = table.find('table').find_all('tr')
-                for tr in trlst:
-                    if currid <= float(tr['id']):
-                        currid += 1
-                        td = [t.text for t in table.find('tr', id=tr['id']).find_all('td')]
-
-                        if len(td) == 4:
-                            gtime, gteam, gevent, gscore = td
-                            if len(gteam) < 5:      # 补全空格，使显示格式对齐，强迫症
-                                gteam += int(5 - len(gteam)) * 2 * " "
-                            print("\t{} \t {} \t {}\t{}\n".format(gtime, gscore, gteam[1:], gevent))
-                        elif len(td) == 1:          # 显示如比赛暂停，第一节结束等非比分信息
-                            print("", td[0], "\n")
-                            if td[0] == "比赛结束":
-                                return
+                tr = list(table.find('table').find_all('tr'))
+                if currid_cnt <= len(tr):
+                    currid_cnt += 1
+                    td = [t.text for t in table.find('tr', id=tr[0]['id']).find_all('td')]
+                    if len(td) == 4:
+                        gtime, gteam, gevent, gscore = td
+                        if len(gteam) < 5:
+                            gteam += int(5 - len(gteam)) * 2 * " "
+                        print("\t{} \t {} \t {}\t{}\n".format(gtime, gscore, gteam[1:], gevent))
+                    elif len(td) == 1:
+                        print("", td[0], "\n")
+                        if td[0] == "比赛结束":
+                            return
                 time.sleep(1)                       # 每隔一秒发起一次请求
         except requests.exceptions.ConnectTimeout:
             print(">>  网络连接失败，无法获得直播数据")
