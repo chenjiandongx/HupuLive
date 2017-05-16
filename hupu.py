@@ -76,7 +76,6 @@ class Hupu():
         try:
             r = requests.get(url, headers=self._headers, timeout=5).text
             game_href = BeautifulSoup(r, 'lxml').find_all('a', target="_self")
-
             for href in game_href:
                 h = href['href']
                 if "playbyplay" in h:
@@ -130,6 +129,8 @@ class Hupu():
                 r = requests.get(h, headers=self._headers, timeout=10).text
                 news = BeautifulSoup(r, 'lxml').find("div", class_="news_box").text
                 print(str(news).replace("\n", "\n\n"))
+                return
+        print(">> 无该比赛场次赛后新闻")
 
     def live_order(self, trlst, currid_cnt, table):
         """ 调整比赛直播顺序 """
