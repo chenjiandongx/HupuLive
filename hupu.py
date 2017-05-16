@@ -54,7 +54,6 @@ class Hupu():
                     print(" {}\t| {}\n".format(v, i), "-" * 25)
             else:
                 print(">>  暂无比赛直播")
-
         if self._args.get('-w'):
             try:
                 self.live_game(self._hreflst[int(self._args.get('<gameNumber>'))])
@@ -86,7 +85,6 @@ class Hupu():
                     self._namelst.append(str(game).strip().split()[2][:-4])     # 获取对阵双方
                 if "boxscore" in h:
                     self._datalst.append(h)
-
         except requests.exceptions.ConnectTimeout:
             print(">>  获取比赛场次失败,请检查您的网络连接情况")
 
