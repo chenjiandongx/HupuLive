@@ -42,7 +42,6 @@ class Hupu():
         self._namelst = []
         self._hreflst = []
         self._datalst = []
-        self._newslst = []
         self._headers = self.__headers__
         self.get_gamelist()
 
@@ -130,10 +129,9 @@ class Hupu():
         for href in news_href:
             h = href['href']
             if "recap" in h:
-                self._newslst.append(h)
-        r = requests.get(self._newslst[0], headers=self._headers, timeout=10).text
-        news = BeautifulSoup(r, 'lxml').find("div", class_="news_box").text
-        print(str(news).replace("\n", "\n\n"))
+                r = requests.get(h, headers=self._headers, timeout=10).text
+                news = BeautifulSoup(r, 'lxml').find("div", class_="news_box").text
+                print(str(news).replace("\n", "\n\n"))
 
     def live_order(self, trlst, currid_cnt, table):
         """ 调整比赛直播顺序 """
