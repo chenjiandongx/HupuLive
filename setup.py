@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='HupuLive',
-    version='1.2',
+    version='1.3',
     author='chenjiandongx',
     author_email='chenjiandongx@qq.com',
     url = "https://github.com/chenjiandongx/HupuLive",

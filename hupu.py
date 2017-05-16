@@ -6,6 +6,7 @@ Usage:
     hupu -l
     hupu -w <gameNumber>
     hupu -d <gameNumber>
+    hupu -n <gameNumber>
     hupu -h | --help
     hupu -v | --version
 
@@ -21,6 +22,7 @@ Options:
     -l               Show game live list.
     -w               Select a game live to watch.
     -d               Show game statistical data (like points, rebounds, assists)
+    -n               Show postgame news
 
 """
 import time
@@ -40,6 +42,7 @@ class Hupu():
         self._namelst = []
         self._hreflst = []
         self._datalst = []
+        self._newslst = []
         self._headers = self.__headers__
         self.get_gamelist()
 
@@ -57,20 +60,24 @@ class Hupu():
             try:
                 self.live_game(self._hreflst[int(self._args.get('<gameNumber>'))])
             except Exception:
-                print(">>  输入比赛场次有误")
-
+                print(">>  无该比赛场次文字直播")
         if self._args.get('-d'):
             try:
                 self.show_data(self._datalst[int(self._args.get('<gameNumber>'))])
             except Exception:
-                print(">>  输入比赛场次有误")
+                print(">>  无该比赛场次球员数据")
+        if self._args.get('-n'):
+            try:
+                self.show_news(int(self._args.get('<gameNumber>')))
+            except Exception:
+                print(">>  无该比赛场次赛后新闻")
 
     def get_gamelist(self):
         """ 获取直播场次列表 """
         url = "https://nba.hupu.com/games/playbyplay"
         try:
-            response = requests.get(url, headers=self._headers, timeout=5).text
-            game_href = BeautifulSoup(response, 'lxml').find_all('a', target="_self")
+            r = requests.get(url, headers=self._headers, timeout=5).text
+            game_href = BeautifulSoup(r, 'lxml').find_all('a', target="_self")
 
             for href in game_href:
                 h = href['href']
@@ -96,7 +103,6 @@ class Hupu():
                 print(v, end="\t")
         print("球员\n")
 
-
     def show_data(self, url):
         """ 显示比赛统计数据 """
         self.show_data_title(url)
@@ -116,6 +122,18 @@ class Hupu():
                     else:
                         print(v.replace("\n", ""), end="\t")
             print(tdlst[0], "\n")
+
+    def show_news(self, index):
+        """ 显示赛后新闻 """
+        r = requests.get(self._hreflst[index], headers=self._headers, timeout=10).text
+        news_href = BeautifulSoup(r, 'lxml').find_all('a', target="_self")
+        for href in news_href:
+            h = href['href']
+            if "recap" in h:
+                self._newslst.append(h)
+        r = requests.get(self._newslst[0], headers=self._headers, timeout=10).text
+        news = BeautifulSoup(r, 'lxml').find("div", class_="news_box").text
+        print(str(news).replace("\n", "\n\n"))
 
     def live_order(self, trlst, currid_cnt, table):
         """ 调整比赛直播顺序 """
@@ -178,7 +196,7 @@ class Hupu():
 
 def cli():
     """ 入口方法 """
-    args = docopt(__doc__, version='Hupu Live 1.2')
+    args = docopt(__doc__, version='Hupu Live 1.3')
     Hupu(**args).get_command()
 
 if __name__ == '__main__':
