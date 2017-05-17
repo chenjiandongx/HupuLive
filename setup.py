@@ -9,7 +9,7 @@ setup(
     description='Proudly presented by Hupu JRs',
     license="MIT",
     py_modules=['hupu'],
-    requires=["bs4"],
+    requires=["bs4", "docopt", "requests", "lxml"],
     entry_points={
         'console_scripts': [
             'hupu=hupu:cli'
