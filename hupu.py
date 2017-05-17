@@ -225,7 +225,7 @@ class Hupu():
 
 def cli():
     """ 入口方法 """
-    args = docopt(__doc__, version='Hupu Live 1.3')
+    args = docopt(__doc__, version='Hupu Live 1.4')
     Hupu(**args).get_command()
 
 if __name__ == '__main__':
