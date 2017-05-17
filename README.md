@@ -12,6 +12,7 @@
 ### 如何安装
 1. ``` git clone https://github.com/chenjiandongx/HupuLive.git ```
 2. ``` cd HupuLive ```  
+3. ``` pip install -r requirements.txt```
 3. ``` python setup.py install ```  
 
 ### 使用指南  
@@ -42,4 +43,5 @@
 
 ![获取比赛赛后新闻](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-5.gif)
 
-如果不想看了可以按 Ctrl-C 来中断直播，或者直接关闭终端就行了
+如果不想看了可以按 Ctrl-C 来中断直播，或者直接关闭终端就行了  
+使用 ```pip uninstall HupuLive``` 卸载
