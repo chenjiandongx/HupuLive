@@ -49,7 +49,8 @@
 ![获取比赛赛后新闻](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-5.gif)  
 
 ### 获取近期比赛赛程
-```hupu --s``` 或 ```hupu --schedule``` 查看近七天的比赛赛程  
+```hupu -s``` 或 ```hupu --schedule``` 查看近七天的比赛赛程  
+
 ![获取近期比赛赛程](https://github.com/chenjiandongx/HupuLive/blob/master/images/hupu-1.gif)
 
 ### 如何卸载
