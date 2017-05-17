@@ -3,10 +3,11 @@
     Proudly presented by Hupu JRs.
 
 Usage:
-    hupu -l
-    hupu -w <gameNumber>
-    hupu -d <gameNumber>
-    hupu -n <gameNumber>
+    hupu -l | --list
+    hupu -s | --shedule
+    hupu -w | --watch <gameNumber>
+    hupu -d | --data  <gameNumber>
+    hupu -n | --news  <gameNumber>
     hupu -h | --help
     hupu -v | --version
 
@@ -19,11 +20,11 @@ Arguments:
 Options:
     -h --help        Show this help message and exit.
     -v --version     Show version.
-    -l               Show game live list.
-    -w               Select a game live to watch.
-    -d               Show game statistical data (like points, rebounds, assists)
-    -n               Show postgame news
-
+    -l --list        Show game live list.
+    -w --watch       Select a game live to watch.
+    -d --data        Show game statistical data (like points, rebounds, assists)
+    -n --news        Show postgame news
+    -s --schedule    Show game schedule
 """
 import time
 import re
@@ -47,34 +48,39 @@ class Hupu():
 
     def get_command(self):
         """ 处理命令行参数 """
-        if self._args.get('-l'):
+        if self._args.get('-l') or self._args.get('--list'):
             if self._namelst:
                 print("\n 比赛\t\t| 比赛场次\n", "-" * 25)
                 for i, v in enumerate(self._namelst):
                     print(" {}\t| {}\n".format(v, i), "-" * 25)
             else:
                 print(">>  暂无比赛直播")
-        if self._args.get('-w'):
+        if self._args.get('-w') or self._args.get('--watch'):
             try:
                 self.live_game(self._hreflst[int(self._args.get('<gameNumber>'))])
             except Exception:
                 print(">>  无该比赛场次文字直播")
-        if self._args.get('-d'):
+        if self._args.get('-d') or self._args.get('--data'):
             try:
                 self.show_data(self._datalst[int(self._args.get('<gameNumber>'))])
             except Exception:
                 print(">>  无该比赛场次球员数据")
-        if self._args.get('-n'):
+        if self._args.get('-n') or self._args.get('--news'):
             try:
                 self.show_news(int(self._args.get('<gameNumber>')))
             except Exception:
                 print(">>  无该比赛场次赛后新闻")
+        if self._args.get('-s') or self._args.get('--schedule'):
+            try:
+                self.show_schedule()
+            except Exception:
+                print(">>  无法查询到比赛的赛程")
 
     def get_gamelist(self):
         """ 获取直播场次列表 """
         url = "https://nba.hupu.com/games/playbyplay"
         try:
-            r = requests.get(url, headers=self._headers, timeout=5).text
+            r = requests.get(url, headers=self._headers, timeout=6).text
             game_href = BeautifulSoup(r, 'lxml').find_all('a', target="_self")
             for href in game_href:
                 h = href['href']
@@ -89,7 +95,7 @@ class Hupu():
 
     def show_data_title(self, url):
         """" 显示比赛统计数据的各项标题，如得分，篮板 """
-        r = requests.get(url, headers=self.__headers__).text
+        r = requests.get(url, headers=self.__headers__, timeout=6).text
         title = BeautifulSoup(r, 'lxml').find('tr', class_="title bg_a").find_all('td')
         print()
         for i, v in enumerate([t.text for t in title]):
@@ -102,7 +108,7 @@ class Hupu():
     def show_data(self, url):
         """ 显示比赛统计数据 """
         self.show_data_title(url)
-        r = requests.get(url, headers=self.__headers__).text
+        r = requests.get(url, headers=self.__headers__, timeout=6).text
         players = BeautifulSoup(r, 'lxml').find_all('tr', style="background-color: rgb(255, 255, 255);")
         for index, player in enumerate(players):
             if index == 15:
@@ -121,16 +127,42 @@ class Hupu():
 
     def show_news(self, index):
         """ 显示赛后新闻 """
-        r = requests.get(self._hreflst[index], headers=self._headers, timeout=10).text
+        r = requests.get(self._hreflst[index], headers=self._headers, timeout=6).text
         news_href = BeautifulSoup(r, 'lxml').find_all('a', target="_self")
         for href in news_href:
             h = href['href']
             if "recap" in h:
-                r = requests.get(h, headers=self._headers, timeout=10).text
+                r = requests.get(h, headers=self._headers, timeout=6).text
                 news = BeautifulSoup(r, 'lxml').find("div", class_="news_box").text
                 print(str(news).replace("\n", "\n\n"))
                 return
         print(">> 无该比赛场次赛后新闻")
+
+    def show_schedule(self):
+        """ 显示赛程 """
+        url = "https://nba.hupu.com/schedule"
+        r = requests.get(url, headers=self._headers, timeout=6).text
+        result = str(BeautifulSoup(r, 'lxml').find('table', class_="players_table").text).split()
+        schedule = [r for r in result if r not in ["数据统计", "比赛视频", "比赛前瞻", "视频直播"]]
+        index = 0
+        print()
+        for i, v in enumerate(schedule):
+            if i < 3:
+                print(v, end=" ")
+            elif i == 3:
+                print(v)
+            else:
+                if index % 4 == 0 and index != 0:
+                    index = 0
+                    print()
+                if re.findall(r"\d{2}月\d{2}日", v):
+                    print("\n" + v, end=" ")
+                elif re.findall(r"星期[一二三四五六日]", v):
+                    print(v, end="\n")
+                else:
+                    index += 1
+                    print(v, end=" ")
+        print()
 
     def live_order(self, trlst, currid_cnt, table):
         """ 调整比赛直播顺序 """
@@ -152,14 +184,14 @@ class Hupu():
     def live_game(self, url):
         """ 循环文字直播比赛 """
         currid_cnt = 1
-        r = requests.get(url, headers=self._headers, timeout=10).text
+        r = requests.get(url, headers=self._headers, timeout=6).text
         title = BeautifulSoup(r, 'lxml').find('tr', class_="title bg_a").find_all('td')
         print("\n\t{} \t {}\n".format(title[0].text, title[3].text))        # 获取比赛标题信息
         table = BeautifulSoup(r, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow")
 
         # 比赛结束时序列是升序的，比赛中序列是降序的，匹配比赛是否结束然后选择排序方法
         # 由于直播的 tr 的 id 不按套路出牌时大时小，所以不能根据 id 大小来判断直播顺序了，要按 id 数量
-        # 所以分两部分进行，第一部先一次性打印出已经存在的直播内容，然后再循环直播接下来的内容
+        # 所以分两部分进行，第一部先一次性打印出已经存在的直播内容，第二部分循环直播接下来的内容
         if re.findall(r'team_num">(\S+)</div>', r):
             trlst = [tr for tr in reversed(table.find('table').find_all('tr'))]
             currid_cnt = self.live_order(trlst, 1, table)
@@ -169,7 +201,7 @@ class Hupu():
             return
         try:
             while True:
-                r = requests.get(url, headers=self._headers, timeout=5).text
+                r = requests.get(url, headers=self._headers, timeout=6).text
                 table = BeautifulSoup(r, 'lxml').find('div', class_="table_list_live playbyplay_td table_overflow")
                 tr = list(table.find('table').find_all('tr'))
                 if currid_cnt <= len(tr):
