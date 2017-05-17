@@ -9,6 +9,10 @@
 时不我待，来一个网易云的电音歌单配上一杯速溶咖啡  
 时间悄悄地在流逝，然后项目就写好了  
 
+### 测试环境
+* Windows 10
+* Python 3.5.2
+
 ### 如何安装
 1. ``` git clone https://github.com/chenjiandongx/HupuLive.git ```
 2. ``` cd HupuLive ```  
