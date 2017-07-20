@@ -28,6 +28,7 @@ Options:
 """
 import time
 import re
+
 from docopt import docopt
 import requests
 from bs4 import BeautifulSoup
@@ -175,7 +176,7 @@ class Hupu():
                     if len(gteam) < 5:  # 补全空格，使显示格式对齐，强迫症
                         gteam += int(5 - len(gteam)) * 2 * " "
                     print("\t{} \t {} \t {}\t{}\n".format(gtime, gscore, gteam[1:], gevent))
-                elif len(td) == 1:  # 显示如比赛暂停，第一节结束等非比分信息
+                elif len(td) == 1:      # 显示如比赛暂停，第一节结束等非比分信息
                     print("", td[0], "\n")
                     if td[0] == "比赛结束":
                         return
